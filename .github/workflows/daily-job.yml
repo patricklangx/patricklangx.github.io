@@ -1,0 +1,23 @@
+name: Daily Rebased Chart Job Execution
+
+on:
+  schedule:
+    - cron: '50 8 * * *'
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install jq
+        run: sudo apt-get install jq
+
+      - name: Set script permissions
+        run: chmod +x ./t/iota-rebased-charts/job.sh
+
+      - name: Job execution
+        run: bash ./t/iota-rebased-charts/job.sh
+
