@@ -7,25 +7,38 @@
     <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
+    <style>
+    .chart-container {
+        display: flex;
+        flex-direction: column; /* Stack charts vertically */
+        width: 100%;
+    }
+    .chart {
+        height: 400px; /* Set a fixed height */
+        margin-bottom: 20px; /* Space between charts */
+    }
+    </style>
 </head>
 <body>
     <h1>IOTA Rebase Charts</h1>
     <article>
     <p>This page displays charts of three metrics for the <b><a href="https://www.iota.org/" target="_blank">IOTA</a> Rebased</b> Network:
         <ul>
-            <li><b>Burnt IOTA Tokens per Epoch:</b> The tokens burned due to gas fees paid for transactions and operations (permanently removed from the network)</li>
-            <li><b>Net Minted IOTA per Epoch:</b> The difference between the newly minted (767k per epoch) and burnt tokens (inflation/deflation).</li>
-            <li><b>Number of Transactions per Epoch:</b> The number of transactions per epoch..</li>
+            <li><b>Burnt IOTA per Epoch:</b> The tokens burnt due to gas fees paid for transactions and operations (permanently removed from the network)</li>
+            <li><b>Net Minted IOTA per Epoch:</b> The difference between the newly minted (767k tokens per epoch) and burnt tokens (inflation/deflation)</li>
+            <li><b>Number of Transactions per Epoch:</b> The number of transactions per epoch</li>
         </ul>
         <i>An epoch lasts one day (from 9:39 AM to 9:39 AM CET the next day)</i>
     </p>
     </article>
     <p><b>Last completed Epoch: <code id="epochValue"></code></b></p>
-    <div id="burnt" style="width: 100%; height: 100%;"></div>
-    <br/>
-    <div id="net" style="width: 100%; height: 100%;"></div>
-    <br/>
-    <div id="txs" style="width: 100%; height: 100%;"></div>
+    <div class="chart-container">
+        <div id="burnt" class="chart"></div>
+        <br/>
+        <div id="net" class="chart"></div>
+        <br/>
+        <div id="txs" class="chart"></div>
+    </div>
 
     <script>
         d3.csv('data.csv').then(data => {
