@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOTA Rebase Charts</title>
+    <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
+</head>
+<body>
+    <h1>IOTA Rebase Charts</h1>
+    <article>
+    <p>This page displays charts of three metrics for the <b><a href="https://www.iota.org/" target="_blank">IOTA</a> Rebased</b> Network:
+        <ul>
+            <li><b>Burnt IOTA Tokens per Epoch:</b> The tokens burned due to gas fees paid for transactions and operations (permanently removed from the network)</li>
+            <li><b>Net Minted IOTA per Epoch:</b> The difference between the newly minted (767k per epoch) and burnt tokens (inflation/deflation).</li>
+            <li><b>Number of Transactions per Epoch:</b> The number of transactions per epoch..</li>
+        </ul>
+        <i>An epoch lasts one day (from 9:39 AM to 9:39 AM CET the next day)</i>
+    </p>
+    </article>
+    <p><b>Last completed Epoch: <code id="epochValue"></code></b></p>
+    <div id="burnt" style="width: 100%; height: 100%;"></div>
+    <br/>
+    <div id="net" style="width: 100%; height: 100%;"></div>
+    <br/>
+    <div id="txs" style="width: 100%; height: 100%;"></div>
+
+    <script>
+        d3.csv('data.csv').then(data => {
+            if (data.length > 0) {
+                const lastRow = data[data.length - 1];
+                const epochValue = lastRow.epoch;
+                document.getElementById('epochValue').innerText = epochValue;
+            } else {
+                console.log('No data found in the CSV file.');
+            }
+        }).catch(error => {
+            console.error('Error loading the CSV file:', error);
+        });
+
+    </script>
+
+    <script>
+        d3.csv('data.csv').then(data => {
+            const timestamps = data.map(row => row.date);
+            const epochs = data.map(row => +row.burnt_tokens / 1000000000);
+            const trace = {
+                x: timestamps,
+                y: epochs,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Epoch Data'
+            };
+            const plotData = [trace];
+            const layout = {
+                title: 'Burnt IOTA per Epoch Over Time',
+                xaxis: {
+                    title: 'Timeline',
+                    type: 'date'
+                },
+                yaxis: {
+                    title: 'Burnt Gas Fees (in IOTA)'
+                }
+            };
+            Plotly.newPlot('burnt', plotData, layout);
+        }).catch(error => {
+            console.error('Error loading the CSV file:', error);
+        });
+    </script>
+
+    <script>
+        d3.csv('data.csv').then(data => {
+            const timestamps = data.map(row => row.date);
+            const epochs = data.map(row => +(row.stake_rewards - row.burnt_tokens) / 1000000000);
+            const trace = {
+                x: timestamps,
+                y: epochs,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Epoch Data'
+            };
+            const plotData = [trace];
+            const layout = {
+                title: 'Net Minted IOTA per Epoch Over Time',
+                xaxis: {
+                    title: 'Timeline',
+                    type: 'date'
+                },
+                yaxis: {
+                    title: 'Net Minted IOTA'
+                }
+            };
+            Plotly.newPlot('net', plotData, layout);
+        }).catch(error => {
+            console.error('Error loading the CSV file:', error);
+        });
+    </script>
+
+
+    <script>
+        d3.csv('data.csv').then(data => {
+            const timestamps = data.map(row => row.date);
+            const epochs = data.map(row => +row.transactions);
+            const trace = {
+                x: timestamps,
+                y: epochs,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Epoch Data'
+            };
+            const plotData = [trace];
+            const layout = {
+                title: 'Number of Transactions per Epoch Over Time',
+                xaxis: {
+                    title: 'Timeline',
+                    type: 'date'
+                },
+                yaxis: {
+                    title: 'Transactions'
+                }
+            };
+            Plotly.newPlot('txs', plotData, layout);
+        }).catch(error => {
+            console.error('Error loading the CSV file:', error);
+        });
+    </script>
+
+<p><center>Built with <kbd><a href="https://d3js.org/" target="_blank">D3JS</a></kbd>, <kbd><a href="https://plotly.com" target="_blank">Plotly</a></kbd> and <kbd><a href="https://simplecss.org" target="_blank">SimpleCSS</a></kbd></center></p>
+</body>
+</html>
