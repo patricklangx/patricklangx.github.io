@@ -14,8 +14,8 @@ if [ $? -ne 0 ]; then
     echo "Error: Failed to fetch data from API."
     exit 1
 fi
-
-yesterday=$(date -d "yesterday" +%Y-%m-%d 2>/dev/null || date -v -1d +%Y-%m-%d)
+yesterday=$(date -d "yesterday" +%Y-%m-%d)
+#yesterday=$(date -v -1d +%Y-%m-%d) # for mac
 
 echo -e "\n$response2" | jq -r --arg date "$yesterday" --arg epochId "$epochId" '.data.epoch | to_entries | map(.value) | [$date, $epochId] + . | join(",")' >> "$OUTPUT_FILE"
 
