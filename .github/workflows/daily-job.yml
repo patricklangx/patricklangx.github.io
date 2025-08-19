@@ -1,8 +1,8 @@
-name: Daily Rebased Chart Job Execution
+name: daily-rebased-chart-job-execution
 
 on:
   schedule:
-    - cron: '50 8 * * *'
+    - cron: '50 8 * * *' #must be determined in UTC time; 9:50 in CET time
 
 jobs:
   run-script:
