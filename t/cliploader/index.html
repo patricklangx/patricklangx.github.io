@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliploader</title>
+    <link rel="stylesheet" href="simple.css">
+</head>
+<body>
+    
+    <h1>Cliploader</h1>
+    <p>This tool generates a random string of alphanumeric characters based on your specified length and copies it directly to your clipboard for further use. <br><br><em>The process may take a few moments, depending on the given length. The maximum size is limited to 134,217,728 characters (~128 MB).</em></p>
+    <label for="lengthInput">Enter character length:</label>
+    <input type="number" id="lengthInput" min="1" value="10">
+    <button id="generateButton">Fill it up!</button>
+    <div id="output"></div>
+    <p id="sizeOutput"></p>
+
+    <script>
+        function generateRandomString(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                result += characters[randomIndex];
+            }
+            return result;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const sizeInBytes = estimateSizeInBytes(text);
+                const sizeOutput = formatSize(sizeInBytes);
+                document.getElementById('output').innerHTML = 'Text of <code>' + sizeOutput + '</code> has been copied to your clipboard!';
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        function estimateSizeInBytes(text) {
+            const encoder = new TextEncoder();
+            const encodedText = encoder.encode(text);
+            return encodedText.length;
+        }
+
+        function formatSize(sizeInBytes) {
+            if (sizeInBytes >= 1024 * 1024) {
+                const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+                return sizeInMB + ' MB';
+            }
+            else if (sizeInBytes >= 1024) {
+                const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+                return sizeInKB + ' KB';
+            }
+            return sizeInBytes + ' bytes';
+        }
+
+        document.getElementById('generateButton').addEventListener('click', () => {
+            const lengthInput = document.getElementById('lengthInput').value;
+            if (lengthInput > 134217728) {
+                alert('The length cannot be greater than 134,217,728 characters (~128 MB). Please enter a smaller number.');
+                return;
+            }
+            const randomString = generateRandomString(parseInt(lengthInput));
+            copyToClipboard(randomString);
+        });
+    </script>
+</body>
+</html>

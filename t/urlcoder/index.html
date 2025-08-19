@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL [En|De]coder</title>
+    <link rel="stylesheet" href="simple.css">
+    <style>
+        #output {
+            width: 65ch;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL [En|De]coder</h1>
+    <div>
+        <label>
+            <input type="radio" name="action" value="encode" checked>
+            Encode to URL
+        </label>
+        <label>
+            <input type="radio" name="action" value="decode">
+            Decode from URL
+        </label>
+    </div>
+    <button id="pasteButton" style="width: 220px;">Paste from Clipboard</button>
+    <br>
+    <textarea id="textInput" rows="15" cols="100"></textarea>
+    <br><br>
+    <button id="processButton">Convert</button>
+    <div id="output"></div>
+
+    <script>
+        function encodeToURL(text) {
+            return encodeURIComponent(text);
+        }
+
+        function decodeFromURL(url) {
+            return decodeURIComponent(url);
+        }
+
+        document.getElementById('processButton').addEventListener('click', () => {
+            const action = document.querySelector('input[name="action"]:checked').value;
+            const inputText = document.getElementById('textInput').value;
+            let outputText;
+
+            if (action === 'encode') {
+                outputText = encodeToURL(inputText);
+            } else if (action === 'decode') {
+                outputText = decodeFromURL(inputText);
+            }
+
+            document.getElementById('output').innerHTML = '<br><b>Result:</b><br><article><code>' + outputText + '</code></article>';
+        });
+
+        document.getElementById('pasteButton').addEventListener('click', () => {
+            navigator.clipboard.readText().then(text => {
+                document.getElementById('textInput').value = text;
+            }).catch(err => {
+                console.error('Failed to read clipboard contents: ', err);
+            });
+        });
+    </script>
+</body>
+</html>
