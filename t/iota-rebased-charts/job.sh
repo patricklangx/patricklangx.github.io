@@ -15,7 +15,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-yesterday=$(date -v -1d +%Y-%m-%d)
+yesterday=$(date -d "yesterday" +%Y-%m-%d 2>/dev/null || date -v -1d +%Y-%m-%d)
+
 echo -e "\n$response2" | jq -r --arg date "$yesterday" --arg epochId "$epochId" '.data.epoch | to_entries | map(.value) | [$date, $epochId] + . | join(",")' >> "$OUTPUT_FILE"
 
 if [ $? -ne 0 ]; then
