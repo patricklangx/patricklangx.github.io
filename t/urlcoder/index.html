@@ -42,6 +42,14 @@
             return decodeURIComponent(url);
         }
 
+        function escapeHTML(str) {
+            return str.replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;");
+        }
+
         document.getElementById('processButton').addEventListener('click', () => {
             const action = document.querySelector('input[name="action"]:checked').value;
             const inputText = document.getElementById('textInput').value;
@@ -53,7 +61,7 @@
                 outputText = decodeFromURL(inputText);
             }
 
-            document.getElementById('output').innerHTML = '<br><b>Result:</b><br><article><code>' + outputText + '</code></article>';
+            document.getElementById('output').innerHTML = '<br><b>Result:</b><br><article><code>' + escapeHTML(outputText) + '</code></article>';
         });
 
         document.getElementById('pasteButton').addEventListener('click', () => {
