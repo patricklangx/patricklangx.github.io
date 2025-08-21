@@ -2,7 +2,8 @@ name: daily-rebased-chart-job-execution
 
 on:
   schedule:
-    - cron: '50 8 * * *' #must be determined in UTC time; 9:50 in CET time
+    - cron: '50 8 * * *' # UTC time
+  workflow_dispatch:
 
 jobs:
   run-script:
@@ -12,12 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install jq
-        run: sudo apt-get install jq
-
       - name: Set script permissions
         run: chmod +x ./t/iota-rebased-charts/job.sh
 
       - name: Job execution
         run: bash ./t/iota-rebased-charts/job.sh
 
+      - name: Commit changes
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "patricklangx"
+          git add t/iota-rebased-charts/data.csv
+          git commit -m "Daily data.csv update."
+
+      - name: Push changes
+        run: git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
