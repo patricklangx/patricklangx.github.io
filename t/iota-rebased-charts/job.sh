@@ -1,7 +1,7 @@
 #!/bin/bash
 
 API_URL="https://graphql.mainnet.iota.cafe"
-OUTPUT_FILE="data.csv"
+OUTPUT_FILE="t/iota-rebased-charts/data.csv"
 
 response1=$(curl -s "$API_URL" -H "Content-Type: application/json" -d '{"query": "{epoch {epochId}}"}')
 
