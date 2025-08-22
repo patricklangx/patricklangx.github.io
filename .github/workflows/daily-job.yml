@@ -2,7 +2,7 @@ name: daily-rebased-chart-job-execution
 
 on:
   schedule:
-    - cron: '50 8 * * *' # UTC time
+    - cron: '50 8 * * *'
   workflow_dispatch:
 
 jobs:
@@ -10,23 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set script permissions
-        run: chmod +x ./t/iota-rebased-charts/job.sh
-
-      - name: Job execution
-        run: bash ./t/iota-rebased-charts/job.sh
-
-      - name: Commit changes
+      - name: Run bash script
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "patricklangx"
-          git add t/iota-rebased-charts/data.csv
-          git commit -m "Daily data.csv update."
+          bash ./t/iota-rebased-charts/job.sh
 
-      - name: Push changes
-        run: git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git config --global user.name "patricklangx"
+          git config --global user.email "actions@github.com"
+          
+          timestamp=$(date +'%Y%m%d%H%M%S')
+          branch_name="update-csv-$timestamp"
+
+          git checkout -b "$branch_name"
+
+          git add data.csv
+
+          git commit -m "Daily file update"
+
+          git push origin "$branch_name"
+
+          git checkout main
+          git merge --no-ff "$branch_name"
+          git push origin main
+
+          # delete the temporary branch
+          git branch -d "$branch_name"
+          git push origin --delete "$branch_name"

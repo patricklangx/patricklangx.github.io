@@ -24,14 +24,20 @@
     <article>
     <p>This page displays charts of three metrics for the <b><a href="https://www.iota.org/" target="_blank">IOTA</a> Rebased</b> Network:
         <ul>
-            <li><b>Burnt IOTA per Epoch:</b> The tokens burnt due to gas fees paid for transactions and operations (permanently removed from the network)</li>
-            <li><b>Net Minted IOTA per Epoch:</b> The difference between the newly minted (767k tokens per epoch) and burnt tokens (in-/deflation)</li>
-            <li><b>Number of Transactions per Epoch:</b> The number of transactions per epoch</li>
+            <li><b>Burnt IOTA per Epoch</b> - The tokens burnt due to gas fees paid for transactions and operations (permanently removed from the network)</li>
+            <li><b>Net Minted IOTA per Epoch</b> - The difference between the newly minted (767k tokens per epoch) and burnt tokens (in-/deflation)</li>
+            <li><b>Number of Transactions per Epoch</b></li>
         </ul>
         <i>An epoch lasts one day (from 9:39 AM to 9:39 AM CET the next day)</i>
     </p>
     </article>
-    <p><b>Last completed Epoch: <code id="epochValue"></code></b></p>
+    <p>
+        <b>Last completed Epoch: <code id="epochValue"></code></b>
+        <br>
+        <b>Total Minted IOTA: <code id="totalMintedValue"></code></b>
+        <br>
+        <b>Total Burnt IOTA: <code id="totalBurntValue"></code></b>
+    </p>
     <div class="chart-container">
         <div id="burnt" class="chart"></div>
         <br/>
@@ -49,6 +55,19 @@
             } else {
                 console.log('No data found in the CSV file.');
             }
+        }).catch(error => {
+            console.error('Error loading the CSV file:', error);
+        });
+
+    </script>
+
+    <script>
+        d3.csv('data.csv').then(data => {
+            const totalBurnt = d3.sum(data, row => +row.burnt_tokens / 1000000000);
+            const totalMinted = d3.sum(data, row => +row.stake_rewards / 1000000000);
+            const burntRatio = (totalBurnt / totalMinted) * 100;
+            document.getElementById('totalMintedValue').innerText = d3.format(",.0f")(totalMinted);
+            document.getElementById('totalBurntValue').innerText = d3.format(",.0f")(totalBurnt) + ' (' + d3.format(".4f")(burntRatio) + '% of total minted)';
         }).catch(error => {
             console.error('Error loading the CSV file:', error);
         });
