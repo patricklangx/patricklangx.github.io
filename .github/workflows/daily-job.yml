@@ -25,7 +25,7 @@ jobs:
 
           git checkout -b "$branch_name"
 
-          git add data.csv
+          git add t/iota-rebased-charts/data.csv
 
           git commit -m "Daily file update"
 
