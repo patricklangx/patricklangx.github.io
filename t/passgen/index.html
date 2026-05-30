@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <link rel="stylesheet" href="simple.css">
+    <style>
+        #generatedPassword {
+            font-family: monospace;
+            font-size: 28px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        
+        .password-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        
+        #copyButton {
+            padding: 8px 16px;
+            background-color: #0d47a1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        #copyButton:hover {
+            background-color: #1266e2;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #898EA4;
+            border-radius: 5px;
+            width: 100px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #0d47a1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #1266e2;
+        }
+        
+        #generateButton {
+            margin-left: 10px;
+        }
+        
+        .copy-feedback {
+            display: none;
+            color: green;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .copy-feedback.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Password Generator</h1>
+    
+    <div>
+        <div class="password-container">
+            <p id="generatedPassword"></p>
+            <button id="copyButton">Copy</button>
+        </div>
+        <div class="copy-feedback" id="copyFeedback">✓ Copied to clipboard!</div>
+    </div>
+    
+    <div class="form-group">
+        <label for="passwordLength">Generate new Password with Number of characters:</label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="number" id="passwordLength" min="4" max="128" value="12">
+            <button id="generateButton">Generate Password</button>
+        </div>
+    </div>
+
+    <script>
+        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        const numbers = '0123456789';
+        const specialChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+        
+        const allChars = uppercase + lowercase + numbers + specialChars;
+        
+        const passwordDisplay = document.getElementById('generatedPassword');
+        const lengthInput = document.getElementById('passwordLength');
+        const generateButton = document.getElementById('generateButton');
+        const copyButton = document.getElementById('copyButton');
+        const copyFeedback = document.getElementById('copyFeedback');
+        
+        function generatePassword(length) {
+            let password = '';
+            
+            // Ensure at least one character from each category
+            password += uppercase[Math.floor(Math.random() * uppercase.length)];
+            password += lowercase[Math.floor(Math.random() * lowercase.length)];
+            password += numbers[Math.floor(Math.random() * numbers.length)];
+            password += specialChars[Math.floor(Math.random() * specialChars.length)];
+            
+            // Fill the rest randomly
+            for (let i = password.length; i < length; i++) {
+                password += allChars[Math.floor(Math.random() * allChars.length)];
+            }
+            
+            // Shuffle the password
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+            
+            return password;
+        }
+        
+        function displayPassword() {
+            const length = parseInt(lengthInput.value) || 12;
+            const password = generatePassword(length);
+            passwordDisplay.textContent = password;
+        }
+        
+        function copyToClipboard() {
+            const password = passwordDisplay.textContent;
+            navigator.clipboard.writeText(password).then(() => {
+                copyFeedback.classList.add('show');
+                setTimeout(() => {
+                    copyFeedback.classList.remove('show');
+                }, 2000);
+            });
+        }
+        
+        // Event Listeners
+        generateButton.addEventListener('click', displayPassword);
+        copyButton.addEventListener('click', copyToClipboard);
+        lengthInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                displayPassword();
+            }
+        });
+        
+        // Generate default password on load
+        displayPassword();
+    </script>
+</body>
+</html>
