@@ -6,21 +6,144 @@
     <title>IOTA Rebased Charts</title>
     <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap">
     <link rel="stylesheet" href="simple.css">
     <style>
-    .chart-container {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
+    :root {
+        --bg: #05070d;
+        --panel: rgba(13, 20, 36, 0.72);
+        --line: rgba(0, 229, 255, 0.22);
+        --text: #d6e4ff;
+        --muted: #7f93b8;
+        --cyan: #00e5ff;
+        --magenta: #ff2bd6;
+        --green: #39ff88;
+        --amber: #ffb02e;
     }
-    .chart {
-        height: 400px;
-        margin-bottom: 20px;
+    html { background: var(--bg); }
+    body {
+        display: block;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px 40px;
+        color: var(--text);
+        background:
+            radial-gradient(900px 500px at 10% -10%, rgba(0,229,255,.16), transparent 60%),
+            radial-gradient(800px 500px at 100% 0%, rgba(255,43,214,.13), transparent 60%),
+            linear-gradient(rgba(0,229,255,.045) 1px, transparent 1px) 0 0 / 44px 44px,
+            linear-gradient(90deg, rgba(0,229,255,.045) 1px, transparent 1px) 0 0 / 44px 44px,
+            var(--bg);
+        background-attachment: fixed;
+        font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
     }
+    body > header { padding: 36px 32px 30px; }
+    a { color: var(--cyan); text-decoration: none; border-bottom: 1px dashed rgba(0,229,255,.5); }
+    a:hover { color: var(--green); border-color: var(--green); }
+
+    .hero {
+        position: relative; overflow: hidden;
+        margin: 32px 0 8px; padding: 36px 32px 30px;
+        border: 1px solid var(--line); border-radius: 18px;
+        background:
+            linear-gradient(135deg, rgba(0,229,255,.10), rgba(255,43,214,.08) 60%, transparent),
+            repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px),
+            var(--panel);
+        box-shadow: 0 0 40px rgba(0,229,255,.12), 0 0 0 1px rgba(255,255,255,.02) inset;
+        display: flex; align-items: center; justify-content: center; text-align: center; gap: 26px; flex-wrap: wrap;
+    }
+    .hero::before, .hero::after {
+        content: ""; position: absolute; width: 22px; height: 22px; border: 2px solid var(--cyan);
+        filter: drop-shadow(0 0 6px var(--cyan));
+    }
+    .hero::before { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+    .hero::after { bottom: 10px; right: 10px; border-left: 0; border-top: 0; border-color: var(--magenta); filter: drop-shadow(0 0 6px var(--magenta)); }
+    .hero .scan {
+        position: absolute; left: 0; right: 0; height: 60px; top: -60px; pointer-events: none;
+        background: linear-gradient(180deg, transparent, rgba(0,229,255,.12), transparent);
+        animation: scan 5s linear infinite;
+    }
+    @keyframes scan { to { transform: translateY(260px); } }
+    .hero .eyebrow { color: var(--muted); font-size: .72rem; letter-spacing: .32em; text-transform: uppercase; }
+    h1 {
+        margin: 4px 0 8px; position: relative;
+        font-family: "Orbitron", "Audiowide", "Arial Black", sans-serif;
+        font-size: clamp(1.7rem, 5.4vw, 3.6rem); line-height: 1.1; font-weight: 900;
+        letter-spacing: .08em; text-transform: uppercase;
+        color: var(--cyan);
+        text-shadow: 0 0 6px rgba(0,229,255,.9), 0 0 22px rgba(0,229,255,.55), 3px 0 0 rgba(255,43,214,.75), -3px 0 0 rgba(57,255,136,.35);
+        animation: glitch 6s infinite;
+    }
+    h1 span { color: var(--magenta); text-shadow: 0 0 6px rgba(255,43,214,.9), 0 0 22px rgba(255,43,214,.55), -3px 0 0 rgba(0,229,255,.6); }
+    @keyframes glitch {
+        0%, 92%, 100% { transform: none; clip-path: none; }
+        93% { transform: translate(-3px, 1px) skewX(-6deg); }
+        94% { transform: translate(3px, -1px) skewX(5deg); clip-path: inset(0 0 55% 0); }
+        95% { transform: translate(-2px, 0); clip-path: inset(45% 0 0 0); }
+        96% { transform: none; clip-path: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { h1 { animation: none; } }
+    .hero .status { margin-top: 2px; justify-content: center; }
+    .status {
+        display: inline-flex; align-items: center; gap: 8px;
+        color: var(--green); font-size: .78rem; letter-spacing: .18em; text-transform: uppercase;
+    }
+    .status::before {
+        content: ""; width: 8px; height: 8px; border-radius: 50%;
+        background: var(--green); box-shadow: 0 0 10px var(--green);
+        animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse { 50% { opacity: .25; } }
+
+    article, .tile, .chart-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 0 1px rgba(255,255,255,.02) inset, 0 12px 40px rgba(0,0,0,.45), 0 0 30px rgba(0,229,255,.06);
+    }
+    article { padding: 18px 24px; margin: 20px 0; color: var(--text); }
+    article ul { margin: 10px 0; padding-left: 20px; }
+    article li { margin: 6px 0; }
+    article li::marker { color: var(--magenta); }
+    article b { color: #fff; }
+    article i { color: var(--muted); font-size: .85rem; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+    .tile { padding: 16px 20px; position: relative; overflow: hidden; }
+    .tile::after {
+        content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100%;
+        background: linear-gradient(90deg, var(--c, var(--cyan)), transparent);
+    }
+    .tile .label { color: var(--muted); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; }
+    .tile code {
+        display: block; margin-top: 8px; padding: 0; background: none; border: 0;
+        font-size: 1.55rem; font-weight: 700; color: var(--c, var(--cyan));
+        text-shadow: 0 0 14px var(--c, var(--cyan));
+    }
+    .tile small { color: var(--muted); font-size: .8rem; }
+
+    .chart-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+    .chart-card { padding: 10px 10px 0; position: relative; }
+    .chart-card::before {
+        content: attr(data-tag); position: absolute; top: 12px; left: 18px; z-index: 2;
+        color: var(--muted); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+    }
+    .chart { height: 480px; }
+
+    .footer { text-align: center; margin-top: 36px; color: var(--muted); font-size: .8rem; }
+    kbd { background: rgba(0,229,255,.08); border: 1px solid var(--line); color: var(--cyan); box-shadow: none; }
+    .modebar { background: transparent !important; }
     </style>
 </head>
 <body>
-    <h1>IOTA Rebased Charts</h1>
+    <header class="hero">
+        <div class="scan"></div>
+        <div>
+            <div class="eyebrow">// on-chain analytics</div>
+            <h1 data-text="IOTA REBASED CHARTS">IOTA <span>Rebased</span> Charts</h1>
+            <div class="status">Mainnet &middot; epoch data synced</div>
+        </div>
+    </header>
     <article>
     <p>This page displays charts of three metrics for the <b><a href="https://www.iota.org/" target="_blank">IOTA</a> Rebased</b> Network:
         <ul>
@@ -31,134 +154,177 @@
         <i>An epoch lasts one day (from 9:39 AM to 9:39 AM CET the next day)</i>
     </p>
     </article>
-    <p>
-        <b>Last completed Epoch: <code id="epochValue"></code></b>
-        <br>
-        <b>Total Minted IOTA: <code id="totalMintedValue"></code></b>
-        <br>
-        <b>Total Burnt IOTA: <code id="totalBurntValue"></code></b>
-    </p>
+
+    <div class="stats">
+        <div class="tile" style="--c: var(--cyan)"><span class="label" id="epochLabel">Last completed Epoch</span><code id="epochValue">&hellip;</code></div>
+        <div class="tile" style="--c: var(--green)"><span class="label">Total Minted IOTA</span><code id="totalMintedValue">&hellip;</code></div>
+        <div class="tile" style="--c: var(--magenta)"><span class="label">Total Burnt IOTA</span><code id="totalBurntValue">&hellip;</code><small id="burntRatio"></small></div>
+    </div>
+
     <div class="chart-container">
-        <div id="burnt" class="chart"></div>
-        <br/>
-        <div id="net" class="chart"></div>
-        <br/>
-        <div id="txs" class="chart"></div>
+        <div class="chart-card" data-tag="// burn"><div id="burnt" class="chart"></div></div>
+        <div class="chart-card" data-tag="// net issuance"><div id="net" class="chart"></div></div>
+        <div class="chart-card" data-tag="// activity"><div id="txs" class="chart"></div></div>
     </div>
 
     <script>
-        d3.csv('data.csv').then(data => {
-            if (data.length > 0) {
-                const lastRow = data[data.length - 1];
-                const epochValue = lastRow.epoch;
-                document.getElementById('epochValue').innerText = epochValue;
-            } else {
-                console.log('No data found in the CSV file.');
-            }
-        }).catch(error => {
-            console.error('Error loading the CSV file:', error);
+        const C = { cyan: '#00e5ff', magenta: '#ff2bd6', green: '#39ff88', amber: '#ffb02e', text: '#d6e4ff', grid: 'rgba(0,229,255,0.08)' };
+
+        const rgba = (hex, a) => {
+            const n = parseInt(hex.slice(1), 16);
+            return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+        };
+
+        const movingAvg = (arr, w) => arr.map((_, i) => {
+            const s = arr.slice(Math.max(0, i - w + 1), i + 1);
+            return s.reduce((a, b) => a + b, 0) / s.length;
         });
 
-    </script>
-
-    <script>
-        d3.csv('data.csv').then(data => {
-            const totalBurnt = d3.sum(data, row => +row.burnt_tokens / 1000000000);
-            const totalMinted = d3.sum(data, row => +row.stake_rewards / 1000000000);
-            const burntRatio = (totalBurnt / totalMinted) * 100;
-            document.getElementById('totalMintedValue').innerText = d3.format(",.0f")(totalMinted);
-            document.getElementById('totalBurntValue').innerText = d3.format(",.0f")(totalBurnt) + ' (' + d3.format(".4f")(burntRatio) + '% of total minted)';
-        }).catch(error => {
-            console.error('Error loading the CSV file:', error);
-        });
-
-    </script>
-
-    <script>
-        d3.csv('data.csv').then(data => {
-            const timestamps = data.map(row => row.date);
-            const epochs = data.map(row => +row.burnt_tokens / 1000000000);
-            const trace = {
-                x: timestamps,
-                y: epochs,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Epoch Data'
-            };
-            const plotData = [trace];
-            const layout = {
-                title: 'Burnt IOTA per Epoch Over Time',
-                xaxis: {
-                    title: 'Timeline',
-                    type: 'date'
-                },
-                yaxis: {
-                    title: 'Burnt Gas Fees (in IOTA)'
+        const baseLayout = (title, ytitle) => ({
+            title: { text: title, x: 0.02, xanchor: 'left', y: 0.9, yanchor: 'middle', font: { size: 16, color: C.text, family: 'ui-monospace, Menlo, monospace' } },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: C.text, family: 'ui-monospace, Menlo, monospace', size: 12 },
+            margin: { l: 70, r: 25, t: 105, b: 40 },
+            hovermode: 'x unified',
+            hoverlabel: { bgcolor: '#0a1222', bordercolor: C.cyan, font: { color: C.text } },
+            legend: { orientation: 'h', x: 0.02, y: 1.02, yanchor: 'bottom', font: { size: 11 } },
+            xaxis: {
+                type: 'date', gridcolor: C.grid, zeroline: false, linecolor: 'rgba(0,229,255,.3)',
+                showspikes: true, spikecolor: C.cyan, spikethickness: 1, spikedash: 'dot', spikemode: 'across',
+                rangeslider: { visible: true, thickness: 0.08, bgcolor: 'rgba(0,229,255,.04)', bordercolor: 'rgba(0,229,255,.2)' },
+                rangeselector: {
+                    bgcolor: 'rgba(0,229,255,.08)', activecolor: 'rgba(0,229,255,.35)', bordercolor: 'rgba(0,229,255,.3)', borderwidth: 1,
+                    font: { color: C.text }, x: 1, xanchor: 'right', y: 1.03, yanchor: 'bottom',
+                    buttons: [
+                        { count: 7, label: '7D', step: 'day', stepmode: 'backward' },
+                        { count: 30, label: '30D', step: 'day', stepmode: 'backward' },
+                        { count: 90, label: '90D', step: 'day', stepmode: 'backward' },
+                        { step: 'all', label: 'ALL' }
+                    ]
                 }
-            };
-            Plotly.newPlot('burnt', plotData, layout);
-        }).catch(error => {
-            console.error('Error loading the CSV file:', error);
+            },
+            yaxis: { title: { text: ytitle, font: { size: 11, color: '#7f93b8' } }, gridcolor: C.grid, zeroline: false, linecolor: 'rgba(0,229,255,.3)', tickformat: ',~s' }
         });
-    </script>
 
-    <script>
-        d3.csv('data.csv').then(data => {
-            const timestamps = data.map(row => row.date);
-            const epochs = data.map(row => +(row.stake_rewards - row.burnt_tokens) / 1000000000);
-            const trace = {
-                x: timestamps,
-                y: epochs,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Epoch Data'
-            };
-            const plotData = [trace];
-            const layout = {
-                title: 'Net Minted IOTA per Epoch Over Time',
-                xaxis: {
-                    title: 'Timeline',
-                    type: 'date'
-                },
-                yaxis: {
-                    title: 'Net Minted IOTA'
+        const cfg = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ['lasso2d', 'select2d'] };
+
+        const glowLine = (x, y, name, color, extra = {}) => Object.assign({
+            x, y, name, type: 'scatter', mode: 'lines',
+            line: { color, width: 2.5, shape: 'spline', smoothing: 0.5 },
+            fill: 'tozeroy', fillcolor: rgba(color, 0.12),
+            hovertemplate: '%{y:,.2f}'
+        }, extra);
+
+        const maLine = (x, y, color) => ({
+            x, y, name: '7-epoch avg', type: 'scatter', mode: 'lines',
+            line: { color, width: 2, dash: 'dot' }, hovertemplate: '%{y:,.2f}'
+        });
+
+        // Re-fits the y-axis to whatever x-range is currently visible (rangeslider drag,
+        // rangeselector buttons like 7D/30D/90D, zoom, or double-click reset to ALL).
+        const attachAutoRangeY = (divId, dates, seriesList, { padFrac = 0.15, zeroFloor = false } = {}) => {
+            const gd = document.getElementById(divId);
+            const parsed = dates.map(d => +new Date(d));
+
+            const applyRange = (x0, x1) => {
+                const vals = [];
+                for (let i = 0; i < parsed.length; i++) {
+                    if (parsed[i] >= x0 && parsed[i] <= x1) {
+                        seriesList.forEach(arr => {
+                            const v = arr[i];
+                            if (v !== undefined && !isNaN(v)) vals.push(v);
+                        });
+                    }
                 }
+                if (!vals.length) return;
+                let min = Math.min(...vals), max = Math.max(...vals);
+                if (zeroFloor) min = Math.min(0, min);
+                const pad = (max - min) * padFrac || Math.abs(max) * 0.1 || 1;
+                Plotly.relayout(divId, { 'yaxis.range': [min - pad, max + pad] });
             };
-            Plotly.newPlot('net', plotData, layout);
-        }).catch(error => {
-            console.error('Error loading the CSV file:', error);
-        });
-    </script>
 
-
-    <script>
-        d3.csv('data.csv').then(data => {
-            const timestamps = data.map(row => row.date);
-            const epochs = data.map(row => +row.transactions);
-            const trace = {
-                x: timestamps,
-                y: epochs,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Epoch Data'
-            };
-            const plotData = [trace];
-            const layout = {
-                title: 'Number of Transactions per Epoch Over Time',
-                xaxis: {
-                    title: 'Timeline',
-                    type: 'date'
-                },
-                yaxis: {
-                    title: 'Transactions'
+            gd.on('plotly_relayout', ev => {
+                if (ev['xaxis.autorange']) {
+                    applyRange(parsed[0], parsed[parsed.length - 1]);
+                    return;
                 }
-            };
-            Plotly.newPlot('txs', plotData, layout);
+                let x0, x1;
+                if (ev['xaxis.range']) { [x0, x1] = ev['xaxis.range'].map(v => +new Date(v)); }
+                else if (ev['xaxis.range[0]'] !== undefined && ev['xaxis.range[1]'] !== undefined) {
+                    x0 = +new Date(ev['xaxis.range[0]']); x1 = +new Date(ev['xaxis.range[1]']);
+                } else {
+                    return; // not an x-range change (e.g. our own yaxis.range relayout) - ignore to avoid loops
+                }
+                applyRange(x0, x1);
+            });
+        };
+
+        d3.csv('data.csv').then(raw => {
+            // drop blank/malformed rows (e.g. stray newlines appended by job.sh)
+            const data = raw.filter(r => r.date && /^\d{4}-\d{2}-\d{2}$/.test(r.date) && !isNaN(+r.transactions) && r.transactions !== '');
+            if (!data.length) { throw new Error('No valid rows found in data.csv'); }
+
+            const dates = data.map(r => r.date);
+            const burnt = data.map(r => +r.burnt_tokens / 1e9);
+            const minted = data.map(r => +r.stake_rewards / 1e9);
+            const net = data.map((r, i) => minted[i] - burnt[i]);
+            const txs = data.map(r => +r.transactions);
+
+            // Stat tiles
+            const totalBurnt = d3.sum(burnt);
+            const totalMinted = d3.sum(minted);
+            const last = data[data.length - 1];
+            document.getElementById('epochValue').innerText = last.epoch;
+            document.getElementById('epochLabel').innerText = 'Last completed Epoch (' + last.date + ')';
+            document.getElementById('totalMintedValue').innerText = d3.format(',.0f')(totalMinted);
+            document.getElementById('totalBurntValue').innerText = d3.format(',.0f')(totalBurnt);
+            document.getElementById('burntRatio').innerText = d3.format('.4f')(totalBurnt / totalMinted * 100) + '% of total minted';
+
+            // 1) Burnt per epoch: glowing area + moving average
+            const burntMA = movingAvg(burnt, 7);
+            Plotly.newPlot('burnt', [
+                glowLine(dates, burnt, 'Burnt IOTA', C.magenta),
+                maLine(dates, burntMA, C.amber)
+            ], baseLayout('Burnt IOTA per Epoch Over Time', 'Burnt Gas Fees (IOTA)'), cfg);
+            attachAutoRangeY('burnt', dates, [burnt, burntMA], { zeroFloor: true });
+
+            // 2) Net minted per epoch: zoomed y-axis so the deflationary drift is visible
+            const netMin = d3.min(net), netMax = d3.max(net), pad = (netMax - netMin) * 0.15 || 1;
+            const netLayout = baseLayout('Net Minted IOTA per Epoch Over Time', 'Net Minted IOTA');
+            netLayout.yaxis.range = [netMin - pad, netMax + pad];
+            netLayout.yaxis.tickformat = ',.0f';
+            Plotly.newPlot('net', [
+                glowLine(dates, net, 'Net minted', C.cyan, { fill: 'none' }),
+                {
+                    x: dates, y: new Array(dates.length).fill(767000), name: 'Gross emission (767k)',
+                    type: 'scatter', mode: 'lines', line: { color: C.green, width: 1.5, dash: 'dash' }, hovertemplate: '%{y:,.0f}'
+                }
+            ], netLayout, cfg);
+            attachAutoRangeY('net', dates, [net], { padFrac: 0.15 });
+
+            // 3) Transactions per epoch: neon bars + moving average
+            const txsMA = movingAvg(txs, 7);
+            Plotly.newPlot('txs', [
+                {
+                    x: dates, y: txs, name: 'Transactions', type: 'bar',
+                    marker: { color: txs, colorscale: [[0, rgba(C.cyan, 0.25)], [1, C.green]], line: { width: 0 } },
+                    hovertemplate: '%{y:,.0f}'
+                },
+                maLine(dates, txsMA, C.magenta)
+            ], Object.assign(baseLayout('Number of Transactions per Epoch Over Time', 'Transactions'), { bargap: 0.15 }), cfg);
+            attachAutoRangeY('txs', dates, [txs, txsMA], { zeroFloor: true });
         }).catch(error => {
             console.error('Error loading the CSV file:', error);
+            ['burnt', 'net', 'txs'].forEach(id => {
+                document.getElementById(id).innerHTML =
+                    '<p style="padding:24px;color:#ff2bd6">Could not load/render data: ' + error.message +
+                    '<br><small style="color:#7f93b8">If you opened this file directly (file://), browsers block loading data.csv. ' +
+                    'Serve the folder instead, e.g. <code>python3 -m http.server</code>, then open http://localhost:8000</small></p>';
+            });
         });
     </script>
 
-<p><center>Built with <kbd><a href="https://d3js.org/" target="_blank">D3JS</a></kbd>, <kbd><a href="https://plotly.com" target="_blank">Plotly</a></kbd> and <kbd><a href="https://simplecss.org" target="_blank">SimpleCSS</a></kbd></center></p>
+<p class="footer">Built with <kbd><a href="https://d3js.org/" target="_blank">D3JS</a></kbd>, <kbd><a href="https://plotly.com" target="_blank">Plotly</a></kbd> and <kbd><a href="https://simplecss.org" target="_blank">SimpleCSS</a></kbd></p>
 </body>
 </html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Binary Clock</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: Consolas, "Courier New", monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .clock {
+    display: flex;
+    flex-direction: column;
+    gap: 4vh;
+    align-items: center;
+  }
+  .row {
+    display: flex;
+    gap: 2.5vw;
+    align-items: baseline;
+  }
+  .label {
+    width: 7vw;
+    font-size: 1.2vw;
+    letter-spacing: 0.3em;
+    color: #777;
+    text-align: right;
+  }
+  .digits {
+    position: relative;
+    display: inline-block;
+    font-size: 8vw;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+  }
+  .layer {
+    display: block;
+  }
+  .base {
+    color: #fff;
+    text-shadow: 0 0 6px #fff, 0 0 20px #0ff, 0 0 40px #0ff8;
+  }
+  .bit0 {
+    opacity: 0.2;
+    text-shadow: none;
+  }
+  .red, .cyan {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: screen;
+    white-space: nowrap;
+  }
+  .red {
+    filter: contrast(4) sepia(1) saturate(12) hue-rotate(-50deg);
+    opacity: 0;
+    animation: glitchR 4s infinite steps(1);
+  }
+  .cyan {
+    filter: contrast(4) sepia(1) saturate(12) hue-rotate(130deg);
+    opacity: 0;
+    animation: glitchC 4s infinite steps(1);
+  }
+  .row:nth-child(2) .red,
+  .row:nth-child(2) .cyan { animation-delay: 1.3s; }
+  .row:nth-child(3) .red,
+  .row:nth-child(3) .cyan { animation-delay: 2.6s; }
+  @keyframes glitchR {
+    0%, 100% { opacity: 0; transform: none; }
+    8%  { opacity: .9; transform: translate(-10px,2px); clip-path: inset(10% 0 60% 0); }
+    10% { opacity: .9; transform: translate(8px,-3px); clip-path: inset(55% 0 20% 0); }
+    12% { opacity: 0; }
+    62% { opacity: .9; transform: translate(-14px,0); clip-path: inset(30% 0 40% 0); }
+    64% { opacity: 0; }
+  }
+  @keyframes glitchC {
+    0%, 100% { opacity: 0; transform: none; }
+    9%  { opacity: .9; transform: translate(10px,-2px); clip-path: inset(40% 0 30% 0); }
+    11% { opacity: .9; transform: translate(-8px,3px); clip-path: inset(5% 0 75% 0); }
+    13% { opacity: 0; }
+    63% { opacity: .9; transform: translate(14px,0); clip-path: inset(60% 0 10% 0); }
+    65% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .red, .cyan { animation: none !important; opacity: 0 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="clock">
+  <div class="row"><span class="digits" id="h">
+    <span class="layer base"></span>
+    <span class="layer red" aria-hidden="true"></span>
+    <span class="layer cyan" aria-hidden="true"></span>
+  </span></div>
+  <div class="row"><span class="digits" id="m">
+    <span class="layer base"></span>
+    <span class="layer red" aria-hidden="true"></span>
+    <span class="layer cyan" aria-hidden="true"></span>
+  </span></div>
+  <div class="row"><span class="digits" id="s">
+    <span class="layer base"></span>
+    <span class="layer red" aria-hidden="true"></span>
+    <span class="layer cyan" aria-hidden="true"></span>
+  </span></div>
+</div>
+<script>
+function toBits(n, len) {
+  var s = n.toString(2);
+  while (s.length < len) s = "0" + s;
+  return s;
+}
+
+function toBitHTML(bits) {
+  var out = "";
+  for (var i = 0; i < bits.length; i++) {
+    out += bits[i] === "0" ? '<span class="bit0">0</span>' : '1';
+    if (i < bits.length - 1) out += "&thinsp;";
+  }
+  return out;
+}
+
+function toBitPlain(bits) {
+  return bits.split("").join(" ");
+}
+
+function setField(id, bits) {
+  var el = document.getElementById(id);
+  el.querySelector(".base").innerHTML = toBitHTML(bits);
+  var plain = toBitPlain(bits);
+  el.querySelector(".red").textContent = plain;
+  el.querySelector(".cyan").textContent = plain;
+}
+
+function update() {
+  var now = new Date();
+  setField("h", toBits(now.getHours(), 5));
+  setField("m", toBits(now.getMinutes(), 6));
+  setField("s", toBits(now.getSeconds(), 6));
+}
+
+update();
+setInterval(update, 1000);
+</script>
+</body>
+</html>
