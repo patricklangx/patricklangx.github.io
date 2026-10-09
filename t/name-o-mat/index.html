@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Name-o-Mat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Name-o-Mat</h1>
+    <nav class="variant-nav" aria-label="Variante">
+      <button type="button" class="variant-link active" id="tabRad" aria-pressed="true">Rad</button>
+      <button type="button" class="variant-link" id="tabListe" aria-pressed="false">Liste</button>
+    </nav>
+  </header>
+
+  <section id="panelRad" class="panel">
+    <header class="panel-actions">
+      <label class="btn btn-secondary" for="file">Namen hochladen (.txt)</label>
+      <input id="file" type="file" accept=".txt,text/plain" hidden>
+      <button id="reset" class="btn btn-ghost" type="button" disabled>Zurücksetzen</button>
+    </header>
+
+    <div class="winner-banner" id="winnerCard" hidden>
+      <strong id="winnerName"></strong>
+    </div>
+
+    <main class="layout">
+      <section class="stage" aria-label="Rad">
+        <div class="wheel-wrap" id="wheelWrap">
+          <div class="pointer" aria-hidden="true"></div>
+          <canvas id="wheel" role="img" aria-label="Namensrad"></canvas>
+          <div class="empty" id="empty">
+            <p>Textdatei mit einem Namen pro Zeile hochladen<br>oder hier ablegen.</p>
+          </div>
+        </div>
+        <button id="spin" class="btn btn-primary" type="button" disabled>Namen auswählen</button>
+        <p class="status" id="status" aria-live="polite"></p>
+      </section>
+
+      <aside class="side">
+        <div class="card">
+          <h2>Verbleibend <span class="count" id="remainingCount">0</span></h2>
+          <ul id="remainingList" class="list"></ul>
+        </div>
+        <div class="card">
+          <h2>Bereits ausgewählt <span class="count" id="doneCount">0</span></h2>
+          <ol id="doneList" class="list"></ol>
+        </div>
+      </aside>
+    </main>
+  </section>
+
+  <section id="panelListe" class="panel" hidden>
+    <header class="panel-actions">
+      <label class="btn btn-secondary" for="file2">Namen hochladen (.txt)</label>
+      <input id="file2" type="file" accept=".txt,text/plain" hidden>
+      <button id="reset2" class="btn btn-ghost" type="button" disabled>Zurücksetzen</button>
+    </header>
+
+    <main class="layout layout-single">
+      <section class="stage" aria-label="Reihenfolge">
+        <div class="upload-wrap" id="uploadWrap2">
+          <div class="empty" id="empty2">
+            <p>Textdatei mit einem Namen pro Zeile hochladen<br>oder hier ablegen.</p>
+          </div>
+          <ol class="order-list" id="orderList2" hidden></ol>
+        </div>
+        <button id="generate2" class="btn btn-primary" type="button" disabled>Zufällige Reihenfolge erstellen</button>
+        <p class="status" id="status2" aria-live="polite"></p>
+      </section>
+    </main>
+  </section>
+
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <script src="app.js"></script>
+</body>
+</html>
