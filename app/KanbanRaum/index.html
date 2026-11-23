@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7fb">
+  <title data-i18n="appTitle">KanbanRaum – file-based Kanban</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <a class="brand" href="#" aria-label="KanbanRaum home" data-i18n-aria-label="homeAria">
+          <span class="brand-mark" aria-hidden="true">▦</span>
+          <span class="brand-copy">
+            <strong class="brand-name">Kanban<span class="brand-light">Raum</span></strong>
+            <span class="brand-tagline" data-i18n="tagline">Your ideas in motion</span>
+          </span>
+        </a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" data-i18n-aria-label="themeDark" data-i18n-title="themeDark">
+          <span class="theme-toggle-icon" id="theme-toggle-icon" aria-hidden="true">☾</span>
+        </button>
+      </div>
+
+      <div class="workspace-card">
+        <span class="folder-icon" aria-hidden="true">▰</span>
+        <div class="workspace-copy">
+          <strong id="workspace-name" data-i18n="workspaceName">No folder open</strong>
+          <span id="workspace-path" data-i18n="workspacePath">Choose your project folder</span>
+        </div>
+      </div>
+      <button class="button button-secondary sidebar-open" id="open-folder" data-i18n-aria-label="openProject">
+        <span aria-hidden="true">↗</span> <span data-i18n="openProject">Open project</span>
+      </button>
+
+      <div class="sidebar-divider"></div>
+      <div class="workspace-section-heading">
+        <div class="workspace-label" data-i18n="workspaceSection">WORKSPACE</div>
+        <button class="workspace-add-board" id="add-board-button" type="button" aria-label="Add Kanban board" title="Add Kanban board" data-i18n-aria-label="addBoard" data-i18n-title="addBoard" disabled>+</button>
+      </div>
+      <div class="workspace-board-list" id="workspace-board-list" aria-label="Kanban boards" data-i18n-aria-label="workspaceBoardsAria"></div>
+
+      <div class="sidebar-bottom">
+        <div class="local-note"><span class="status-dot"></span><span data-i18n="localFiles">Your files stay on your device</span></div>
+        <button class="text-button" id="help-button"><span data-i18n="help">How it works</span><span aria-hidden="true">↗</span></button>
+        <button class="trash-button" id="empty-trash-button" type="button" disabled>🗑 Empty trash (0)</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb" id="breadcrumb">
+          <span data-i18n="breadcrumbWorkspace">Workspace</span>
+          <span class="crumb-separator" id="project-crumb-separator" hidden>/</span>
+          <span id="board-breadcrumb-project" hidden></span>
+          <span class="crumb-separator" id="view-crumb-separator" hidden>/</span>
+          <strong id="board-breadcrumb-title" hidden></strong>
+        </div>
+        <div class="top-actions">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="search-input" type="search" placeholder="Search tasks …" aria-label="Search tasks" data-i18n-placeholder="searchPlaceholder" data-i18n-aria-label="searchAria">
+            <kbd>⌘ K</kbd>
+          </label>
+        </div>
+      </header>
+
+      <section class="board-heading">
+        <div>
+          <h1 id="board-title" data-i18n="boardTitle">Kanban board</h1>
+        </div>
+        <div class="heading-actions">
+          <span class="board-updated" id="board-status" data-i18n="noProject">No folder open</span>
+          <button class="button button-secondary" id="new-phase-button" disabled><span aria-hidden="true">＋</span> <span data-i18n="newPhase">New phase</span></button>
+          <button class="button button-primary" id="new-task-button" disabled><span aria-hidden="true">＋</span> <span data-i18n="newTask">New task</span></button>
+          <button class="button button-danger board-delete-icon" id="delete-board-button" type="button" aria-label="Delete board" title="Delete board" data-i18n-aria-label="deleteBoard" data-i18n-title="deleteBoard" disabled><span aria-hidden="true">×</span></button>
+        </div>
+      </section>
+
+      <section class="welcome-panel" id="welcome-panel">
+        <div class="welcome-illustration" aria-hidden="true"><span>▰</span><i>✦</i></div>
+        <div class="welcome-copy">
+          <h2 data-i18n="welcomeTitle">Your board. Your files.</h2>
+          <p data-i18n="welcomeText">Open a folder on your device. In an empty workspace, KanbanRaum automatically creates the four default phases To Do, In Progress, On Hold, and Done as folders. Tasks and details remain regular folders and Markdown files.</p>
+          <button class="button button-primary" id="welcome-open"><span aria-hidden="true">▰</span> <span data-i18n="chooseProject">Choose project folder</span></button>
+          <button class="button button-secondary restore-button" id="restore-folder" hidden data-i18n="restoreProject">Reopen last folder</button>
+          <p class="restore-hint" id="restore-hint" hidden></p>
+          <p class="browser-hint" id="browser-hint" data-i18n="browserHint">Works best in a modern browser with file-system access.</p>
+        </div>
+      </section>
+
+      <div class="overview-filters" id="overview-filters" hidden>
+        <label for="overview-phase-filter" data-i18n="overviewFilter">Show phase</label>
+        <select class="text-input" id="overview-phase-filter" aria-label="Filter work items by phase" data-i18n-aria-label="overviewFilterAria">
+          <option value="" data-i18n="allPhases">All phases</option>
+        </select>
+        <label for="overview-priority-filter" data-i18n="overviewPriorityFilter">Show priority</label>
+        <select class="text-input" id="overview-priority-filter" aria-label="Filter work items by priority" data-i18n-aria-label="overviewPriorityFilterAria">
+          <option value="" data-i18n="allPriorities">All priorities</option>
+          <option value="high" data-i18n="priorityHigh">High</option>
+          <option value="medium" data-i18n="priorityMedium">Medium</option>
+          <option value="low" data-i18n="priorityLow">Low</option>
+          <option value="none" data-i18n="priorityNone">None</option>
+        </select>
+        <label for="overview-tag-filter" data-i18n="overviewTagFilter">Show tag</label>
+        <select class="text-input" id="overview-tag-filter" aria-label="Filter work items by tag" data-i18n-aria-label="overviewTagFilterAria">
+          <option value="" data-i18n="allTags">All tags</option>
+        </select>
+      </div>
+      <section class="board" id="board" aria-label="Kanban board" data-i18n-aria-label="boardAria" hidden></section>
+      <div class="empty-search" id="empty-search" hidden data-i18n="noSearchResults">No tasks match this search.</div>
+    </main>
+  </div>
+
+  <dialog class="phase-dialog" id="phase-dialog">
+    <form id="phase-form" method="dialog">
+      <div class="dialog-header">
+        <div><span class="dialog-eyebrow" data-i18n="phaseEyebrow">NEW PHASE</span><h2 data-i18n="createPhaseTitle">Create phase</h2></div>
+        <button class="icon-button" type="button" id="close-phase-dialog" aria-label="Close" data-i18n-aria-label="close">×</button>
+      </div>
+      <label class="field-label" for="phase-name" data-i18n="phaseName">Name</label>
+      <input class="text-input" id="phase-name" name="name" maxlength="90" required placeholder="e.g. Waiting for feedback" data-i18n-placeholder="phaseNamePlaceholder">
+      <label class="field-label" for="phase-color" data-i18n="phaseColor">Dot color</label>
+      <div class="phase-color-picker"><input id="phase-color" name="color" type="color" value="#8b80f4"><span data-i18n="phaseColorHint">Choose a color for the phase dot.</span></div>
+      <div class="dialog-actions">
+        <span class="action-spacer"></span>
+        <button class="button button-secondary" type="button" id="cancel-phase-dialog" data-i18n="cancel">Cancel</button>
+        <button class="button button-primary" type="submit" data-i18n="createPhase">Create phase</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="phase-dialog" id="board-dialog">
+    <form id="board-form">
+      <div class="dialog-header">
+        <div><span class="dialog-eyebrow" data-i18n="boardEyebrow">NEW BOARD</span><h2 data-i18n="createBoardTitle">Create Kanban board</h2></div>
+        <button class="icon-button" type="button" id="close-board-dialog" aria-label="Close" data-i18n-aria-label="close">×</button>
+      </div>
+      <label class="field-label" for="board-name" data-i18n="boardName">Name</label>
+      <input class="text-input" id="board-name" name="name" maxlength="90" required placeholder="e.g. Product roadmap" data-i18n-placeholder="boardNamePlaceholder">
+      <div class="dialog-actions">
+        <span class="action-spacer"></span>
+        <button class="button button-secondary" type="button" id="cancel-board-dialog" data-i18n="cancel">Cancel</button>
+        <button class="button button-primary" id="create-board-submit" type="submit" data-i18n="createBoard">Create board</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="task-dialog" id="task-dialog">
+    <form id="task-form">
+      <div class="dialog-header">
+        <div><span class="dialog-eyebrow" data-i18n="taskEyebrow">WORK ITEM</span><h2 id="dialog-title" data-i18n="newTaskTitle">New task</h2></div>
+        <button class="icon-button" type="button" id="close-dialog" aria-label="Close" data-i18n-aria-label="close">×</button>
+      </div>
+      <section class="task-view" id="task-view" hidden aria-label="Work item details" data-i18n-aria-label="taskDetailsAria">
+        <div class="task-view-meta"><strong id="task-view-phase"></strong><span class="priority-meta"><span class="priority-label" data-i18n="priorityLabel">Priority:</span><span class="priority-badge" id="task-view-priority"></span></span><span id="task-view-created"></span></div>
+        <div class="task-tags task-view-tags" id="task-view-tags" hidden></div>
+        <div class="task-description-heading">
+          <h3 data-i18n="description">Description</h3>
+          <button class="description-edit-link" type="button" id="edit-task" data-i18n="edit">Edit</button>
+        </div>
+        <article class="markdown-rendered" id="markdown-rendered"></article>
+        <section class="task-subtasks" aria-labelledby="subtasks-heading">
+          <div class="comments-heading">
+            <h3 id="subtasks-heading" data-i18n="subtasks">Subtasks</h3>
+            <span class="task-count" id="subtask-count">0/0</span>
+            <button class="comment-action subtask-visibility-toggle" id="toggle-completed-subtasks" type="button" data-i18n="hideCompletedSubtasks" hidden>Hide completed</button>
+          </div>
+          <div class="subtasks-list" id="subtasks-list"></div>
+          <div class="subtask-form">
+            <input class="text-input subtask-input" id="new-subtask" maxlength="180" placeholder="New subtask …" aria-label="New subtask" data-i18n-placeholder="newSubtaskPlaceholder" data-i18n-aria-label="newSubtaskAria">
+            <button class="button button-secondary" id="add-subtask" type="button" data-i18n="add">Add</button>
+          </div>
+        </section>
+        <section class="task-comments" aria-labelledby="comments-heading">
+          <div class="comments-heading"><h3 id="comments-heading" data-i18n="comments">Comments</h3><span class="task-count" id="comment-count">0</span></div>
+          <div class="comments-list" id="comments-list"></div>
+          <div class="comment-form" id="comment-form">
+            <label class="field-label" for="new-comment" data-i18n="addComment">Add comment</label>
+            <div class="comment-form-row">
+              <textarea class="text-input comment-input" id="new-comment" rows="3" maxlength="10000" placeholder="Write a comment …" data-i18n-placeholder="newCommentPlaceholder" aria-label="Add a comment" data-i18n-aria-label="newCommentAria"></textarea>
+              <button class="button button-secondary" id="add-comment" type="button" aria-label="Add" data-i18n="add" data-i18n-aria-label="add">Add</button>
+            </div>
+          </div>
+        </section>
+        <div class="dialog-actions view-actions">
+          <button class="button button-danger" type="button" id="delete-task-view" data-i18n="deleteTask">Delete work item</button>
+          <span class="action-spacer"></span>
+          <button class="button button-primary" type="button" id="save-task-view" data-i18n="save">Save</button>
+        </div>
+      </section>
+      <div id="task-edit-fields">
+        <label class="field-label" for="task-title" data-i18n="title">Title</label>
+        <input class="text-input" id="task-title" name="title" maxlength="100" required placeholder="What needs to be done?" data-i18n-placeholder="taskTitlePlaceholder">
+        <label class="field-label" for="task-phase" data-i18n="phaseField">Phase</label>
+        <select class="text-input" id="task-phase" name="phase" required></select>
+        <label class="field-label" for="task-priority" data-i18n="priorityField">Priority</label>
+        <select class="text-input" id="task-priority" name="priority" required>
+          <option value="none" data-i18n="priorityNone">None</option>
+          <option value="high" data-i18n="priorityHigh">High</option>
+          <option value="medium" data-i18n="priorityMedium">Medium</option>
+          <option value="low" data-i18n="priorityLow">Low</option>
+        </select>
+        <label class="field-label" for="task-tags"><span data-i18n="tagsField">Tags</span> <span class="field-hint" data-i18n="tagsHint">Separate with commas</span></label>
+        <input class="text-input" id="task-tags" name="tags" maxlength="500" placeholder="e.g. urgent, backend" data-i18n-placeholder="tagsPlaceholder">
+        <label class="field-label" for="task-details"><span data-i18n="description">Description</span> <span class="field-hint" data-i18n="markdownSupported">Markdown supported</span></label>
+        <textarea class="text-input markdown-input" id="task-details" name="details" rows="9" placeholder="Notes, checklists, links …&#10;&#10;- First step" data-i18n-placeholder="taskDetailsPlaceholder"></textarea>
+        <p class="paste-hint" data-i18n="pasteImageHint">Paste images into this field (⌘V or Ctrl+V).</p>
+        <section class="task-subtasks draft-subtasks" id="new-task-subtasks" aria-labelledby="draft-subtasks-heading" hidden>
+          <div class="comments-heading">
+            <h3 id="draft-subtasks-heading" data-i18n="subtasks">Subtasks</h3>
+            <span class="task-count" id="draft-subtask-count">0/0</span>
+          </div>
+          <div class="subtasks-list" id="draft-subtasks-list"></div>
+          <div class="subtask-form">
+            <input class="text-input subtask-input" id="new-draft-subtask" maxlength="180" placeholder="New subtask …" aria-label="New subtask" data-i18n-placeholder="newSubtaskPlaceholder" data-i18n-aria-label="newSubtaskAria">
+            <button class="button button-secondary" id="add-draft-subtask" type="button" data-i18n="add">Add</button>
+          </div>
+        </section>
+        <label class="field-label attachment-label" for="attachment-picker" data-i18n="attachmentLabel">Attach files</label>
+        <input class="attachment-input" id="attachment-picker" type="file" multiple>
+        <p class="paste-hint" data-i18n="attachmentHint">Selected files are stored in __data and added as Markdown links. Remove the link from the description to remove an attachment.</p>
+        <p class="file-preview" id="file-preview" hidden></p>
+      </div>
+      <div class="dialog-actions" id="editor-actions">
+        <span class="action-spacer"></span>
+        <p class="save-status" id="task-save-status" role="status" aria-live="polite" hidden></p>
+        <button class="button button-primary" type="submit" data-i18n="createTask">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="info-dialog" id="info-dialog">
+    <div class="dialog-header"><div><span class="dialog-eyebrow" data-i18n="infoEyebrow">QUICK GUIDE</span><h2 data-i18n="infoTitle">Your files, your board.</h2></div><button class="icon-button" id="close-info" aria-label="Close" data-i18n-aria-label="close">×</button></div>
+    <p data-i18n="infoIntro">Choose a local project folder. If it has no phases, KanbanRaum creates the four default phases To Do, In Progress, On Hold, and Done as folders. Existing default folders Backlog and Erledigt are automatically renamed to To Do and Done. Choose a dot color when creating a phase. Click an existing phase dot to change its color; the color is saved in the project. Use the icons in a column header to rename or delete a phase; at least one phase must remain.</p>
+    <div class="folder-example"><span>📁 <span data-i18n="infoFolderPhase">In Progress</span>/</span><span class="tree-indent">└─ 📁 <span data-i18n="infoFolderTask">Update website</span>/</span><span class="tree-indent deeper">└─ 📄 <span data-i18n="infoFolderFile">task.md</span></span></div>
+    <p data-i18n="infoBody">Drag a phase handle (⠿) to another column to change its order. The order is saved in .phases.json in the workspace. Click a task to view its formatted Markdown description. Add subtasks when creating a work item; in its details, add, edit, check off, and delete them. The checklist is saved in subtasks.md for each work item. You can also add, edit, and delete comments; they are stored in comments.md in the work item folder. Use Edit to change the title, phase, and description. Paste images or attach files using the file picker. Attachments are stored under __data and appear as Markdown links. Removing an attachment link and saving deletes the unused file; an empty __data folder is also removed. Delete a work item to move it to __bin after confirmation. Use Empty trash in the sidebar and confirm again to delete its contents permanently. Work items created or edited on the board are saved as Markdown files. Drag cards into another phase to move them. Deleting a phase permanently deletes its folder and contents. The browser only remembers local folder access so the board can reopen next time; task content remains in files.</p>
+    <button class="button button-primary info-done" id="info-done" data-i18n="infoDone">Got it</button>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="languages/default.js"></script>
+  <script>
+    if (new URLSearchParams(location.search).get('lang') === 'en') {
+      document.write('<script src="languages/en.js"><\/script>');
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
